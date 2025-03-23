@@ -1,24 +1,107 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js Project Boilerplate with Clerk, shadcn/ui, and Convex
+
+A clean, general-purpose boilerplate for setting up a Next.js project with Clerk authentication, shadcn/ui components, and Convex database.
+
+> **Note:** This boilerplate provides a starting point for your Next.js application with modern authentication, UI components, and database solutions. You can extend it according to your project needs.
+
+## Features
+
+- **Authentication** with [Clerk](https://clerk.dev/)
+- **UI components** with [shadcn/ui](https://ui.shadcn.com/)
+- **Database** with [Convex](https://www.convex.dev/)
+- **Type safety** with TypeScript
+- **Styling** with Tailwind CSS
+- **Routing** with Next.js App Router
+
+## Project Structure
+
+```
+my-project/
+├── app/
+│   ├── (auth)/                # Authentication routes
+│   │   ├── sign-in/[[...sign-in]]/
+│   │   ├── sign-up/[[...sign-up]]/
+│   │   └── onboarding/
+│   ├── (dashboard)/           # Protected routes
+│   │   ├── dashboard/
+│   │   ├── settings/
+│   │   └── layout.tsx         # Shared dashboard layout
+│   ├── api/                   # API routes
+│   │   └── webhooks/
+│   │       └── clerk/
+│   ├── globals.css
+│   └── layout.tsx             # Root layout
+├── components/
+│   ├── auth/                  # Auth-related components
+│   ├── dashboard/             # Dashboard components
+│   ├── shared/                # Shared components (navbar, sidebar)
+│   └── ui/                    # shadcn/ui components
+├── convex/                    # Convex database
+│   ├── _generated/
+│   ├── auth.ts                # Auth functions
+│   ├── schema.ts              # Schema definition
+│   └── users.ts               # User data functions
+├── lib/
+│   └── utils.ts
+├── public/
+├── middleware.ts              # Clerk middleware
+└── .env.local
+```
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+ and npm
+
+### Installation
+
+1. Clone this repository
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Set up your environment variables in `.env.local`:
+
+```
+# Clerk Auth
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_****
+CLERK_SECRET_KEY=sk_test_****
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/onboarding
+CLERK_WEBHOOK_SECRET=whsec_****
+
+# Convex
+NEXT_PUBLIC_CONVEX_URL=https://******.convex.cloud
+```
+
+4. Initialize Convex:
+
+```bash
+npx convex dev
+```
+
+5. Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+6. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Customization
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Authentication**: Configure Clerk in the Clerk Dashboard
+- **UI Components**: Add or customize shadcn/ui components
+- **Database**: Modify the Convex schema in `convex/schema.ts`
+
+## License
+
+MIT
 
 ## Learn More
 
