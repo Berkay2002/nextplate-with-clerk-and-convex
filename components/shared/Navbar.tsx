@@ -10,7 +10,7 @@ interface NavbarProps {
 
 export function Navbar({ variant = 'dashboard' }: NavbarProps) {
   const isPublic = variant === 'public';
-  const appName = isPublic ? "NextPlate" : "My App";
+  const appName = isPublic ? "2cent" : "2cent";
   const homeLink = isPublic ? "/" : "/dashboard";
   
   return (
@@ -22,18 +22,6 @@ export function Navbar({ variant = 'dashboard' }: NavbarProps) {
         
         {isPublic ? (
           <>
-            <nav className="hidden space-x-6 md:flex">
-              <Link href="#features" className="text-sm font-medium hover:text-primary">
-                Features
-              </Link>
-              <Link href="#docs" className="text-sm font-medium hover:text-primary">
-                Documentation
-              </Link>
-              <Link href="https://github.com/your-username/nextplate" target="_blank" className="text-sm font-medium hover:text-primary">
-                GitHub
-              </Link>
-            </nav>
-            
             <div className="flex items-center gap-4">
               <Button asChild variant="outline" size="sm">
                 <Link href="/sign-in">Sign In</Link>
