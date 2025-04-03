@@ -1,119 +1,159 @@
-# Next.js Project Boilerplate with Clerk, shadcn/ui, and Convex
+# 🎮 2Cents / Image Arena – Full Application Summary
 
-A clean, general-purpose boilerplate for setting up a Next.js project with Clerk authentication, shadcn/ui components, and Convex database.
+---
 
-> **Note:** This boilerplate provides a starting point for your Next.js application with modern authentication, UI components, and database solutions. You can extend it according to your project needs.
+## 🌐 Application Overview
 
-## Features
+**2Cents** is a fast-paced, real-time multiplayer web game where players react to images by submitting witty, absurd, or clever captions. The game is powered by user-generated content and designed to evolve over time through a growing, globally shared image pool.
 
-- **Authentication** with [Clerk](https://clerk.dev/)
-- **UI components** with [shadcn/ui](https://ui.shadcn.com/)
-- **Database** with [Convex](https://www.convex.dev/)
-- **Type safety** with TypeScript
-- **Styling** with Tailwind CSS
-- **Routing** with Next.js App Router
+---
 
-## Project Structure
+## 🚀 Core Gameplay Loop
 
+Each game session follows this flow:
+
+### 🏁 Game Start
+- All **authenticated players must submit one image** and a title.
+- Players can:
+  - Upload a **brand new image**, or
+  - Reuse an image they previously submitted.
+- These player-submitted images form the **image pool** for this game.
+
+### 🎲 Serendipity Image Addition
+- One additional image is selected from the **global fallback pool** (called a "serendipity image").
+- The **total number of rounds = players + 1**.
+  - One round per player-submitted image
+  - One bonus round for the serendipity image
+
+---
+
+## 🤀 Round Flow
+
+Each round follows a structured two-phase loop:
+
+### 1. **Reaction Phase (1m30s)**
+- One image is displayed.
+- Players **submit captions/comments** based on the image.
+- Players **vote on other players' captions**.
+- At the end of the phase, the **caption with the most votes wins**.
+- The image is also scored (see below).
+
+### 2. **[Optional] Submission Phase**
+*(Only used for future iterations or expansion – not active in this core loop)*
+
+---
+
+## 🏆 Round Winners
+
+- 🛈 **Caption Winner**: The player whose comment receives the most votes
+- 🖼️ **Image Winner (round-level)**: Calculated by:
+  ```
+  positive_ratio = top_comment_votes / total_votes
+  ```
+  - Used for display purposes and image performance tracking
+
+---
+
+## 🌍 Global Image Pool & Serendipity Logic
+
+### 📆 Global Image Pool
+- All **new uploads** are saved permanently to the global `images` table.
+- Every image includes:
+  - `id`, `title`, `uploader_id`, `storage_path`, `created_at`
+  - `is_serendipity_eligible = true` (if it's a brand new image)
+
+### ♻️ Serendipity Selection (Deterministic Rotation)
+To avoid random bias and ensure fair exposure:
+
+- A single global value `serendipity_index` is stored in a `global_state` table.
+- When a new game is created:
+  - The app selects an image using:
+    ```sql
+    OFFSET (serendipity_index % total_eligible_images)
+    ```
+  - The image is added to the game as the final round image.
+  - `serendipity_index` is incremented by 1.
+
+This guarantees that **all fallback images will eventually loop**, and some will gain popularity through repeated exposure.
+
+---
+
+## 📊 Global Image Popularity System
+
+As serendipity images are shown repeatedly, the system builds a **global popularity score** for each image:
+
+### Metrics Tracked:
+- `usage_count`: How often the image has been shown
+- `serendipity_rounds`: How often the image was used as fallback
+- `serendipity_wins`: How many rounds the image "won" based on caption votes
+- `total_votes`: Aggregate vote count from all its appearances
+- `positive_ratio_avg`: Average top-comment ratio per use
+
+### Optional Popularity Score Formula:
+```ts
+popularityScore = (wins / usage_count) + (avgPositiveRatio * weight)
 ```
-my-project/
-├── app/
-│   ├── (auth)/                # Authentication routes
-│   │   ├── sign-in/[[...sign-in]]/
-│   │   ├── sign-up/[[...sign-up]]/
-│   │   └── onboarding/
-│   ├── (dashboard)/           # Protected routes
-│   │   ├── dashboard/
-│   │   ├── settings/
-│   │   └── layout.tsx         # Shared dashboard layout
-│   ├── api/                   # API routes
-│   │   └── webhooks/
-│   │       └── clerk/
-│   ├── globals.css
-│   └── layout.tsx             # Root layout
-├── components/
-│   ├── auth/                  # Auth-related components
-│   ├── dashboard/             # Dashboard components
-│   ├── shared/                # Shared components (navbar, sidebar)
-│   └── ui/                    # shadcn/ui components
-├── convex/                    # Convex database
-│   ├── _generated/
-│   ├── auth.ts                # Auth functions
-│   ├── schema.ts              # Schema definition
-│   └── users.ts               # User data functions
-├── lib/
-│   └── utils.ts
-├── public/
-├── middleware.ts              # Clerk middleware
-└── .env.local
-```
 
-## Getting Started
+This score determines leaderboard/trending placement and can influence:
+- Search ranking
+- Recommended images
+- Seasonal highlights
 
-### Prerequisites
+---
 
-- Node.js 18+ and npm
+## 🔐 Authentication & Identity
 
-### Installation
+- **Clerk** handles all auth flows using Google OAuth.
+- Every player and every piece of content (image, vote, comment) is tied to a `user_id`.
 
-1. Clone this repository
-2. Install dependencies:
+---
 
-```bash
-npm install
-```
+## 📓 Supabase Schema Overview (Core Tables)
 
-3. Set up your environment variables in `.env.local`:
+### `images`
+| Field | Type |
+|-------|------|
+| id | UUID (PK) |
+| title | TEXT |
+| storage_path | TEXT |
+| uploader_id | UUID (FK to Clerk) |
+| created_at | TIMESTAMP |
+| is_serendipity_eligible | BOOLEAN |
+| usage_count | INT |
+| serendipity_wins | INT |
+| total_votes | INT |
 
-```
-# Clerk Auth
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_****
-CLERK_SECRET_KEY=sk_test_****
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
-NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
-NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard
-NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/onboarding
-CLERK_WEBHOOK_SECRET=whsec_****
+---
 
-# Convex
-NEXT_PUBLIC_CONVEX_URL=https://******.convex.cloud
-```
+### `global_state`
+| Field | Type |
+|-------|------|
+| id | UUID (singleton row) |
+| serendipity_index | INT |
 
-4. Initialize Convex:
+---
 
-```bash
-npx convex dev
-```
+### `games`, `game_rounds`, `comments`, `votes`, etc.
+Gameplay loop uses round-tracking logic to store:
+- Which image was used in which round
+- Who commented, what they said, and how many votes it got
 
-5. Run the development server:
+---
 
-```bash
-npm run dev
-```
+## 🧪 Future-Proofing & Expansions
 
-6. Open [http://localhost:3000](http://localhost:3000) in your browser.
+- Add real-time leaderboard
+- Allow users to browse past serendipity images
+- Add game variants with multiple serendipity rounds or themes
+- Introduce content tagging & moderation tools
 
-## Customization
+---
 
-- **Authentication**: Configure Clerk in the Clerk Dashboard
-- **UI Components**: Add or customize shadcn/ui components
-- **Database**: Modify the Convex schema in `convex/schema.ts`
+## ✅ TL;DR Summary
 
-## License
-
-MIT
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Every player must submit (or reuse) one image per game
+- Each game gets one bonus "serendipity" image from a rotating global pool
+- Round winners are based on caption votes
+- Image performance is tracked globally over time
+- Global popularity = earned through exposure + player reactions
+- No deletions — every image lives in the global archive forever
