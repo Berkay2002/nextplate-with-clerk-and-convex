@@ -2,11 +2,11 @@ import { SignUp } from '@clerk/nextjs';
 
 export default function SignUpPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <div className="flex h-[calc(100vh-56px)] items-center justify-center">
       <SignUp 
         appearance={{ 
           elements: { 
-            formButtonPrimary: 'bg-black hover:bg-gray-800 text-sm normal-case' 
+            formButtonPrimary: 'bg-primary text-primary-foreground hover:bg-primary/90 text-sm normal-case' 
           } 
         }}
         redirectUrl="/dashboard"

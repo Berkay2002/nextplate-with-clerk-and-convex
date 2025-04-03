@@ -10,7 +10,7 @@ export default function LandingPage() {
         <h1 className="text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl">
           2<span className="text-primary">Cents</span>
         </h1>
-        <p className="mt-6 max-w-2xl text-lg text-gray-600 dark:text-gray-400">
+        <p className="mt-6 max-w-2xl text-lg text-muted-foreground">
           A fast-paced, real-time multiplayer web game where players react to images by submitting witty, absurd, or clever captions.
         </p>
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
@@ -26,7 +26,7 @@ export default function LandingPage() {
       </div>
 
       {/* Features Section */}
-      <div className="bg-gray-50 py-16 dark:bg-gray-900">
+      <div className="bg-muted py-16">
         <div className="container mx-auto px-4">
           <h2 className="mb-12 text-center text-3xl font-bold">How It Works</h2>
           
@@ -35,7 +35,7 @@ export default function LandingPage() {
             <div className="rounded-lg border bg-card p-6 shadow-sm">
               <Image className="mb-4 h-10 w-10 text-primary" />
               <h3 className="mb-2 text-xl font-bold">Submit Images</h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-muted-foreground">
                 Every player submits one image per game, creating a unique image pool for each session.
               </p>
             </div>
@@ -44,7 +44,7 @@ export default function LandingPage() {
             <div className="rounded-lg border bg-card p-6 shadow-sm">
               <MessageSquare className="mb-4 h-10 w-10 text-primary" />
               <h3 className="mb-2 text-xl font-bold">React & Vote</h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-muted-foreground">
                 Players submit witty captions for each image and vote on others' submissions.
               </p>
             </div>
@@ -53,7 +53,7 @@ export default function LandingPage() {
             <div className="rounded-lg border bg-card p-6 shadow-sm">
               <Trophy className="mb-4 h-10 w-10 text-primary" />
               <h3 className="mb-2 text-xl font-bold">Win & Compete</h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-muted-foreground">
                 The caption with the most votes wins each round, and images gain popularity over time.
               </p>
             </div>
@@ -63,7 +63,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t py-6">
-        <div className="container mx-auto px-4 text-center text-sm text-gray-600 dark:text-gray-400">
+        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
           &copy; {new Date().getFullYear()} 2Cents. All rights reserved.
         </div>
       </footer>

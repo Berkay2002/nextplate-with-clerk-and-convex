@@ -14,7 +14,7 @@ export function Navbar({ variant = 'dashboard' }: NavbarProps) {
   const homeLink = isPublic ? "/" : "/dashboard";
   
   return (
-    <header className="border-b bg-white dark:bg-gray-950">
+    <header className="border-b bg-background">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href={homeLink} className="text-xl font-bold">
           {appName}
