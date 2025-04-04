@@ -6,7 +6,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export type Database = {
+export interface Database {
   public: {
     Tables: {
       comments: {
@@ -41,7 +41,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "rounds"
             referencedColumns: ["id"]
-          },
+          }
         ]
       }
       game_events: {
@@ -76,7 +76,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "games"
             referencedColumns: ["id"]
-          },
+          }
         ]
       }
       game_players: {
@@ -108,7 +108,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "games"
             referencedColumns: ["id"]
-          },
+          }
         ]
       }
       games: {

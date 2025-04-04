@@ -1,15 +1,20 @@
-import { currentUser } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { Navbar, Sidebar } from '@/components/shared';
+import { createClient } from '@/utils/supabase/server';
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const user = await currentUser();
+  // Check for Supabase user
+  const supabase = await createClient();
+  const { data: { user: supabaseUser } } = await supabase.auth.getUser();
   
-  if (!user) return redirect('/sign-in');
+  // Redirect if not authenticated
+  if (!supabaseUser) {
+    return redirect('/');
+  }
 
   return (
     <div className="relative min-h-screen">

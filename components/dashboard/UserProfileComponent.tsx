@@ -1,42 +1,67 @@
 "use client";
 
-import { useState } from "react";
-import { useAuth } from "@clerk/clerk-react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { createClient } from "@/utils/supabase/client";
 
-type User = {
+type UserProfile = {
   name?: string;
   email: string;
   onboardingCompleted: boolean;
 };
 
 export default function UserProfileComponent() {
-  const { userId } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const supabase = createClient();
   
-  // In a real implementation, you would use the Convex hooks:
-  // const user = useQuery(api.users.getUser, userId ? { userId } : "skip");
-  // const updateUser = useMutation(api.users.createOrUpdateUser);
+  useEffect(() => {
+    const loadUser = async () => {
+      setLoading(true);
+      
+      try {
+        const { data: { user: supabaseUser } } = await supabase.auth.getUser();
+        
+        if (supabaseUser) {
+          // Set up the user profile
+          setUser({
+            name: supabaseUser.user_metadata?.full_name,
+            email: supabaseUser.email || '',
+            onboardingCompleted: true,
+          });
+        }
+      } catch (error) {
+        console.error("Error loading user profile:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadUser();
+  }, [supabase.auth]);
   
   // Example function to update user profile
   const handleUpdateProfile = async () => {
-    if (!userId) return;
+    if (!user) return;
     
     setLoading(true);
     try {
-      // This is a mock update - in a real implementation, you would use Convex
-      // await updateUser({
-      //   userId,
-      //   email: "updated-email@example.com",
-      //   name: "Updated Name",
-      // });
+      // In a real implementation, you would update the user metadata in Supabase
+      const { error } = await supabase.auth.updateUser({
+        data: {
+          full_name: "Updated Name",
+        }
+      });
       
-      // For now, we're just updating the local state
+      if (error) {
+        throw error;
+      }
+      
+      // Update the local state
       setUser({
         name: "Updated Name",
-        email: "updated-email@example.com",
-        onboardingCompleted: true
+        email: user.email,
+        onboardingCompleted: true,
       });
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -45,7 +70,11 @@ export default function UserProfileComponent() {
     }
   };
   
-  if (!userId) {
+  if (loading && !user) {
+    return <div>Loading profile...</div>;
+  }
+  
+  if (!user) {
     return <div>Not authenticated</div>;
   }
   
@@ -53,15 +82,11 @@ export default function UserProfileComponent() {
     <div className="space-y-4">
       <h2 className="text-xl font-bold">User Profile</h2>
       
-      {user ? (
-        <div>
-          <p>Name: {user.name || "Not set"}</p>
-          <p>Email: {user.email}</p>
-          <p>Onboarding completed: {user.onboardingCompleted ? "Yes" : "No"}</p>
-        </div>
-      ) : (
-        <p>User data not loaded. Once Convex is properly connected, user data will appear here.</p>
-      )}
+      <div>
+        <p>Name: {user.name || "Not set"}</p>
+        <p>Email: {user.email}</p>
+        <p>Onboarding completed: {user.onboardingCompleted ? "Yes" : "No"}</p>
+      </div>
       
       <Button onClick={handleUpdateProfile} disabled={loading}>
         {loading ? "Updating..." : "Update Profile"}
